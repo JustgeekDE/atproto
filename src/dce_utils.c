@@ -161,7 +161,7 @@ int SECTION_ATTR dce_expect_string(char** pbuf, size_t* psize, char** result)
         if (quote == 1)
         {
             switch (c) {
-                case '\0':
+                case '0':
                 case '\\':
                     *dst= '\\';
                     ++dst;
