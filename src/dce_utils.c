@@ -231,23 +231,17 @@ int SECTION_ATTR dce_expect_string(char** pbuf, size_t* psize, char** result)
 }
 
 
-size_t SECTION_ATTR dce_escape_null(char** pbuf, size_t* psize, char** result)
-{
-    char* src = *pbuf;
-    size_t size = *psize;
+size_t SECTION_ATTR dce_escape_null(char* pbuf){
+    char* src = pbuf;
     int quote = 0;
-    *result = src;
     size_t length = 0;
-    for (char* dst = src; size > 0; ++src, --size)
-    {
+    for (char* dst = src; *src != 0; ++src) {
         char c = *src;
-        if (quote == 0 && c == '\\')
-        {
+        if (quote == 0 && c == '\\') {
             quote = 1;
             continue;
         }
-        if (quote == 1)
-        {
+        if (quote == 1) {
             switch (c) {
                 case '\\':
                     *dst = c;
@@ -259,12 +253,10 @@ size_t SECTION_ATTR dce_escape_null(char** pbuf, size_t* psize, char** result)
                     DCE_DEBUGV("invalid escape sequence: \\%c", c);
                     return -1;
             }
-            ++dst;
             quote = 0;
-            length++;
-            continue;
+        } else {
+          *dst = c;
         }
-        *dst = c;
         ++dst;
         length++;
     }

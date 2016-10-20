@@ -406,11 +406,10 @@ dce_result_t SECTION_ATTR ip_handle_CIPSENDI(dce_t* dce, void* group_ctx, int ki
         return DCE_OK;
     }
 
-    char **tempArg = &(argv[1].value.string);
-    size_t argLen = strlen(argv[1].value.string);
-    size_t len = dce_escape_null(tempArg, &argLen, NULL);
+    char *tempArg = argv[1].value.string;
+    size_t len = dce_escape_null(tempArg);
 
-    espconn_sent(conn, (uint8_t*) argv[1].value.string, len);
+    espconn_sent(conn, (uint8_t*) tempArg, len);
     dce_emit_basic_result_code(dce, DCE_RC_OK);
     return DCE_OK;
 }
