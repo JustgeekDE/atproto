@@ -1,4 +1,4 @@
-/* Copyright (c) 2014 Ivan Grokhotkov. All rights reserved. 
+/* Copyright (c) 2014 Ivan Grokhotkov. All rights reserved.
  * This file is part of the atproto AT protocol library
  *
  * Redistribution and use is permitted according to the conditions of the
@@ -19,4 +19,6 @@ void dce_itoa(int val, char* buf, size_t bufsize, size_t* outsize);
 void dce_itoa_zeropad(int val, char* buf, size_t bufsize);  // works for nonnegative numbers
 void dce_strcpy(const char* str, char* buf, size_t bufsize, size_t* outsize);
 int dce_parse_ip(const char* buf, uint8_t* ip); // returns 0 on success
+size_t dce_escape_null(char** pbuf, size_t* psize, char** result);
+
 #endif //__DCE_UTILS

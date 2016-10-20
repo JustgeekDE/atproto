@@ -17,7 +17,7 @@ dce_result_t SECTION_ATTR ip_handle_CIPCREATE(dce_t* dce, void* group_ctx, int k
         dce_emit_extended_result_code(dce, "+CIPCREATE:\"TCP|UDP\"[,port][,buffer_size]", -1, 1);
         return DCE_OK;
     }
-    
+
     if (argc == 0 ||
         argv[0].type != ARG_TYPE_STRING ||
         (argc >= 2 && argv[1].type != ARG_TYPE_NUMBER && argv[1].type != ARG_NOT_SPECIFIED) ||
@@ -28,7 +28,7 @@ dce_result_t SECTION_ATTR ip_handle_CIPCREATE(dce_t* dce, void* group_ctx, int k
         dce_emit_basic_result_code(dce, DCE_RC_ERROR);
         return DCE_OK;
     }
-    
+
     enum espconn_type connection_type = ESPCONN_INVALID;
     if (strcmp("TCP", argv[0].value.string) == 0)
         connection_type = ESPCONN_TCP;
@@ -40,7 +40,7 @@ dce_result_t SECTION_ATTR ip_handle_CIPCREATE(dce_t* dce, void* group_ctx, int k
         dce_emit_basic_result_code(dce, DCE_RC_ERROR);
         return DCE_OK;
     }
-    
+
     int port;
     if (argc >= 2 && argv[1].type == ARG_TYPE_NUMBER)
         port = argv[1].value.number;
@@ -50,7 +50,7 @@ dce_result_t SECTION_ATTR ip_handle_CIPCREATE(dce_t* dce, void* group_ctx, int k
     int rx_buffer_size = DEFAULT_RX_BUFFER_SIZE;
     if (argc == 3 && argv[2].type == ARG_TYPE_NUMBER)
         rx_buffer_size = argv[2].value.number;
-    
+
     ip_ctx_t* ip_ctx = (ip_ctx_t*) group_ctx;
     int index = ip_espconn_get(ip_ctx, 0, connection_type, rx_buffer_size);
     if (index < 0) // all connections are in use
@@ -64,7 +64,7 @@ dce_result_t SECTION_ATTR ip_handle_CIPCREATE(dce_t* dce, void* group_ctx, int k
         connection->conn->proto.tcp->local_port = port;
     else
         connection->conn->proto.udp->local_port = port;
-    
+
     arg_t args[] = {
         {ARG_TYPE_NUMBER, .value.number=index},
         {ARG_TYPE_NUMBER, .value.number=port},
@@ -124,7 +124,7 @@ void SECTION_ATTR ip_recv_callback(struct espconn* connection, char *pdata, unsi
     }
     memcpy(arg->rx_buffer + arg->rx_buffer_pos, pdata, size_to_copy);
     arg->rx_buffer_pos += size_to_copy;
-    
+
     arg_t args[] = {
         {ARG_TYPE_NUMBER, .value.number = arg->index},
         {ARG_TYPE_NUMBER, .value.number = (int) arg->rx_buffer_pos}
@@ -189,7 +189,7 @@ void SECTION_ATTR ip_tcp_accept_callback(struct espconn* conn)
         {ARG_TYPE_NUMBER, .value.number = index},
         {ARG_TYPE_STRING, .value.string = remote_ip_buf}
     };
-    
+
     espconn_regist_recvcb(conn, (espconn_recv_callback) &ip_recv_callback);
     espconn_regist_sentcb(conn, (espconn_sent_callback) &ip_sent_callback);
     espconn_regist_reconcb(conn, (espconn_reconnect_callback) &ip_tcp_reconnect_callback);
@@ -213,7 +213,7 @@ dce_result_t SECTION_ATTR ip_handle_CIPCONNECT(dce_t* dce, void* group_ctx, int 
         dce_emit_basic_result_code(dce, DCE_RC_ERROR);
         return DCE_OK;
     }
-    
+
     ip_ctx_t* ctx = (ip_ctx_t*) group_ctx;
     int index = argv[0].value.number;
     if (index >= MAX_ESP_CONNECTIONS ||
@@ -236,12 +236,12 @@ dce_result_t SECTION_ATTR ip_handle_CIPCONNECT(dce_t* dce, void* group_ctx, int 
         dce_emit_basic_result_code(dce, DCE_RC_ERROR);
         return DCE_OK;
     }
-    
+
     if (conn->type == ESPCONN_TCP)
         conn->proto.tcp->remote_port = argv[2].value.number;
     else
         conn->proto.udp->remote_port = argv[2].value.number;
-    
+
     espconn_regist_recvcb(conn, (espconn_recv_callback) &ip_recv_callback);
     espconn_regist_sentcb(conn, (espconn_sent_callback) &ip_sent_callback);
     if (conn->type == ESPCONN_TCP)
@@ -269,7 +269,7 @@ dce_result_t SECTION_ATTR ip_handle_CIPDISCONNECT(dce_t* dce, void* group_ctx, i
         dce_emit_basic_result_code(dce, DCE_RC_ERROR);
         return DCE_OK;
     }
-    
+
     ip_ctx_t* ctx = (ip_ctx_t*) group_ctx;
     int index = argv[0].value.number;
     if (index >= MAX_ESP_CONNECTIONS ||
@@ -302,7 +302,7 @@ dce_result_t SECTION_ATTR ip_handle_CIPLISTEN(dce_t* dce, void* group_ctx, int k
         dce_emit_basic_result_code(dce, DCE_RC_ERROR);
         return DCE_OK;
     }
-    
+
     enum espconn_type connection_type = ESPCONN_INVALID;
     if (strcmp("TCP", argv[0].value.string) == 0)
         connection_type = ESPCONN_TCP;
@@ -314,19 +314,19 @@ dce_result_t SECTION_ATTR ip_handle_CIPLISTEN(dce_t* dce, void* group_ctx, int k
         dce_emit_basic_result_code(dce, DCE_RC_ERROR);
         return DCE_OK;
     }
-    
+
     int port;
     if (argc >= 2 && argv[1].type == ARG_TYPE_NUMBER)
         port = argv[1].value.number;
     else
         port = espconn_port();
-    
+
     int rx_buffer_size = DEFAULT_RX_BUFFER_SIZE;
     if (argc == 3 && argv[2].type == ARG_TYPE_NUMBER)
         rx_buffer_size = argv[2].value.number;
 
     ip_ctx_t* ctx = (ip_ctx_t*) group_ctx;
-    
+
     int server_timeout = 20000;
     struct espconn* connection = 0;
     int index = -1;
@@ -391,7 +391,7 @@ dce_result_t SECTION_ATTR ip_handle_CIPSENDI(dce_t* dce, void* group_ctx, int ki
         dce_emit_basic_result_code(dce, DCE_RC_ERROR);
         return DCE_OK;
     }
-    
+
     ip_ctx_t* ctx = (ip_ctx_t*) group_ctx;
     int index = argv[0].value.number;
     struct espconn* conn = 0;
@@ -405,8 +405,12 @@ dce_result_t SECTION_ATTR ip_handle_CIPSENDI(dce_t* dce, void* group_ctx, int ki
         dce_emit_basic_result_code(dce, DCE_RC_ERROR);
         return DCE_OK;
     }
-    
-    espconn_sent(conn, (uint8_t*) argv[1].value.string, strlen(argv[1].value.string));
+
+    char **tempArg = &(argv[1].value.string);
+    size_t argLen = strlen(argv[1].value.string);
+    size_t len = dce_escape_null(tempArg, &argLen, NULL);
+
+    espconn_sent(conn, (uint8_t*) argv[1].value.string, len);
     dce_emit_basic_result_code(dce, DCE_RC_OK);
     return DCE_OK;
 }
@@ -424,7 +428,7 @@ dce_result_t SECTION_ATTR ip_handle_CIPRD(dce_t* dce, void* group_ctx, int kind,
         dce_emit_basic_result_code(dce, DCE_RC_ERROR);
         return DCE_OK;
     }
-    
+
     ip_ctx_t* ctx = (ip_ctx_t*) group_ctx;
     int index = argv[0].value.number;
     ip_connection_t* connection;
@@ -441,7 +445,7 @@ dce_result_t SECTION_ATTR ip_handle_CIPRD(dce_t* dce, void* group_ctx, int kind,
     }
 
     size_t size_to_read = connection->rx_buffer_pos;
-    
+
     arg_t res[] = {
         {ARG_TYPE_NUMBER, .value.number = index},
         {ARG_TYPE_NUMBER, .value.number = (int) size_to_read},

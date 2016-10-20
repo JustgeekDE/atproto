@@ -1,4 +1,4 @@
-/* Copyright (c) 2014 Ivan Grokhotkov. All rights reserved. 
+/* Copyright (c) 2014 Ivan Grokhotkov. All rights reserved.
  * This file is part of the atproto AT protocol library
  *
  * Redistribution and use is permitted according to the conditions of the
@@ -27,7 +27,7 @@ int SECTION_ATTR dce_expect_number(const char** buf, size_t *psize, int def_val)
     size_t s = *psize;
     if (s == 0)
         return def_val;
-    
+
     int result = 0;
     int i;
     const char* b = *buf;
@@ -38,10 +38,10 @@ int SECTION_ATTR dce_expect_number(const char** buf, size_t *psize, int def_val)
             break;
         result = result * 10 + x;
     }
-    
+
     if (i == 0)
         return def_val;
-    
+
     *psize -= i;
     *buf += i;
     return result;
@@ -73,7 +73,7 @@ void SECTION_ATTR dce_itoa(int val, char* buf, size_t bufsize, size_t* outsize)
         *outsize = 0;
         return;
     }
-    
+
     char* start = buf;
     if (negative)
     {
@@ -97,7 +97,7 @@ void SECTION_ATTR dce_itoa_zeropad(int val, char* buf, size_t bufsize)
         digits[i] = val - div * 10;
         val = div;
     }
-    
+
     for (int j = 0; j < bufsize - i; ++j, ++buf)
         *buf = '0';
     for (; i > 0; --i, ++buf)
@@ -114,7 +114,7 @@ void SECTION_ATTR dce_strcpy(const char* str, char* buf, size_t bufsize, size_t*
             break;
         *buf = c;
     }
-    
+
     *outsize = buf - start;
 }
 
@@ -161,7 +161,11 @@ int SECTION_ATTR dce_expect_string(char** pbuf, size_t* psize, char** result)
         if (quote == 1)
         {
             switch (c) {
+                case '\0':
                 case '\\':
+                    *dst= '\\';
+                    ++dst;
+                    *dst = c;
                 case '"':
                     *dst = c;
                     break;
@@ -226,4 +230,44 @@ int SECTION_ATTR dce_expect_string(char** pbuf, size_t* psize, char** result)
     return -1;
 }
 
+
+size_t SECTION_ATTR dce_escape_null(char** pbuf, size_t* psize, char** result)
+{
+    char* src = *pbuf;
+    size_t size = *psize;
+    int quote = 0;
+    *result = src;
+    size_t length = 0;
+    for (char* dst = src; size > 0; ++src, --size)
+    {
+        char c = *src;
+        if (quote == 0 && c == '\\')
+        {
+            quote = 1;
+            continue;
+        }
+        if (quote == 1)
+        {
+            switch (c) {
+                case '\\':
+                    *dst = c;
+                    break;
+                case '0':
+                    *dst = '\0';
+                    break;
+                default:
+                    DCE_DEBUGV("invalid escape sequence: \\%c", c);
+                    return -1;
+            }
+            ++dst;
+            quote = 0;
+            length++;
+            continue;
+        }
+        *dst = c;
+        ++dst;
+        length++;
+    }
+    return length;
+}
 
